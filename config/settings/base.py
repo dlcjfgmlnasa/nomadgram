@@ -1,7 +1,7 @@
 """
 Base settings to build other settings files upon.
 """
-
+import os
 import environ
 
 ROOT_DIR = environ.Path(__file__) - 3  # (nomadgram/config/settings/base.py - 3 = nomadgram/)
@@ -38,10 +38,24 @@ USE_TZ = True
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+# TODO: 데이터 베이스 부분
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgres:///nomadgram'),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'db.sqlite3'),
+    }
+    # 'default': env.db('DATABASE_URL', default='postgres:///nomadgram'),
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'pygramserver', # DB명
+    #     'USER': 'root', # 데이터베이스 계정
+    #     'PASSWORD': 'zxc~2051801', # 계정 비밀번호,
+    #     'HOST': 'localhost',
+    #     'PORT': '3306'
+    # }
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
+DATABASES['default']['PASSWORD'] = "zxc~2051801"
 
 # URLS
 # ------------------------------------------------------------------------------
@@ -63,7 +77,6 @@ DJANGO_APPS = [
     'django.contrib.admin',
 ]
 THIRD_PARTY_APPS = [
-    'crispy_forms',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -71,6 +84,7 @@ THIRD_PARTY_APPS = [
 ]
 LOCAL_APPS = [
     'nomadgram.users.apps.UsersAppConfig',
+    'nomadgram.images.apps.ImagesConfig'
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
