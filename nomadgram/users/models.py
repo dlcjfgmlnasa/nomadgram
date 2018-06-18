@@ -19,6 +19,9 @@ class User(AbstractUser):
     bio = models.TextField(null=True)
     phone = models.CharField(max_length=140, null=True)
     gender = models.CharField(max_length=80, choices=GENDER_CHOICES, null=True)
+    
+    followers = models.ManyToManyField('self')      # 다른 모델이 아니라 User 자신에게 연결을 해야됨
+    folloings = models.ManyToManyField('self')
 
 
     def __str__(self):
