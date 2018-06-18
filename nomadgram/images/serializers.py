@@ -19,12 +19,35 @@ class ImageSerializers(serializers.ModelSerializer):
 
 
 class CommentSerializers(serializers.ModelSerializer):
+    image = ImageSerializers()
     class Meta:
         model = models.Comment
         fields = '__all__'
 
 
 class LikeSerializers(serializers.ModelSerializer):
+    image = ImageSerializers()  # 이미지에 대한 정보 더 얻어와서 이미지를 시리얼라이즈하고 있다 !! 주의 변수이름은 모델의 변수이름이랑 같아야한다
     class Meta:
         model = models.Like
-        fields = '__all__'
+        fields = '__all__'  
+            # 우리는 모든 필드를 가져올껀데
+            # 필드는 생성자, 그리고 이미지가 있지 둘다 들고올꺼야
+            # 이때 어떤 특정 필드(이미지)는 foreign key가 아니라 이미지 시리얼라이저라고 작성하는 것
+
+    """
+    [{
+        "id": 1,
+        "image": {
+            "id": 1,
+            "create_at": "2018-06-15T14:21:26.293879+09:00",
+            "update_at": "2018-06-15T14:21:26.293879+09:00",
+            "file": "/media/jekyll-logo.png",
+            "location": "부산",
+            "caption": "블라블라블라",
+            "creator": 2
+        },
+        "create_at": "2018-06-18T11:28:30.357558+09:00",
+        "update_at": "2018-06-18T11:28:30.357558+09:00",
+        "creator": 2
+    }]
+    """
