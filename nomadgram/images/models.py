@@ -15,11 +15,16 @@ class TimeStampedModel(models.Model):
                         # abstract base model 은 데이터베이스를 생성하기 위해 사용되지 않는다 
                         # 대신 다른모델들을 위한 base로 사용됨 -> 필드들이 추가
 
+    
 class Image(TimeStampedModel):
     file = models.ImageField()
     location = models.CharField(max_length=140)
     caption = models.TextField()
     creator = models.ForeignKey(user_models.User, on_delete=models.PROTECT, null=True) # ForeignKey()
+
+    # string representation
+    def __str__(self):
+        return '{} - {}'.format(self.location, self.caption)
 
 
 class Comment(TimeStampedModel):
@@ -27,10 +32,18 @@ class Comment(TimeStampedModel):
     creator = models.ForeignKey(user_models.User, on_delete=models.PROTECT, null=True)
     image = models.ForeignKey(Image, on_delete=models.PROTECT, null=True)
 
+    def __str__(self):
+        return self.image
+
+
 class Like(TimeStampedModel):
     """ Like model """
     creator = models.ForeignKey(user_models.User, on_delete=models.PROTECT, null=True)
     image = models.ForeignKey(Image, on_delete=models.PROTECT, null=True)
+
+
+    def __str__(self):
+        return 'User : {} - Image Caption : {}'.format(self.creator.username, self.image.caption)
 
 # model relationships
 """
@@ -40,4 +53,117 @@ Please select a fix:
  2) Quit, and let me add a default in models.py
 
  이런 버그가 발생 => 이말의 뜻은 null=true 값이 필요하다는 의미
+"""
+
+"""
+HTTP - hypertext transfer protocol
+인터넷이 서로 서로 커뮤니케이션 하는 방법
+디바이스-서버, 클라이언트-서버 거의 모든 것들이 http를 통과한다
+아래의 내용이 표준이고 이것을 무조건 따라야하는것을 아니나 따르는것이 좋다
+
+Client
+Server
+
+Requests
+Responses
+
+Requests - 
+Consume a resource
+Create a resource
+Update a resource
+Delete a resource
+
+Headers: Method (액션 - 어떤행동을 하는지)
+GET - Consume a resource
+POST - Create a resource
+PUT - Update a resource
+DELETE - Delete a resource
+
+Header : 
+    (GET host: google.com)
+body:
+
+Header :
+
+Body :
+    HTML
+
+Header : 
+    (POST host: google.com)
+body:
+    (username:'nico', password: 'kbob')
+
+login(request.body['username'], requset.body['password'])
+
+Header : 
+    (POST host: google.com)
+body:
+    (username:'nico', password: 'kbob')
+update(request.body['username'], requset.body['password'])
+
+Header : 
+    (DELETE host: google.com)
+body:
+    (username:'nico', password: 'kbob')
+update(request.body['username'], requset.body['password'])
+
+
+------------------------------------------------------------------
+장고앱은 models, views, urls로 작동한다
+models : 이전에 작업한 데이터
+views : function - 유저삭제, 로그인 유저, 이미지 업로드와 같은
+
+Client: google.com
+
+Server: GET google.com/user => (look) => URL => View() => 
+"""
+"""
+REST API
+/getAllDogs
+/scheduleWalkOneThePark
+/getDowOwner
+/getAllDogsByOwner
+api를 디자인할 때는 명사를 집중해야된다
+NOUNS ARE GOOD -> 명사는 좋아요
+VERBS ARE BAD -> 동사는 나빠요
+REST API를 만들때 동사는 제외하는것이 좋다
+
+동사는 CRUD 액션에서 발생한다
+CRUD - (Create, Read, Update, Delete)
+Create - POST
+Read - GET
+Update - PUT
+DELETE - DELETE
+
+우리가 모든 강아지를 불러모으고 싶다
+=> getAllDogs() Fuck!! 절대 이렇게 하지 마라
+아래와 같이 해라
+GET -> /dogs
+POST -> /dogs
+UPDATE -> /dogs
+DELETE -> /dogs
+
+이렇게 dogs를 collection 취급받고 있다
+/dogs
+GET => /dogs/kung
+POST => /dogs/kung (error)
+PUT => /dogs/kung (if Kung exists update, not error)
+DELTE => /dogs/kung
+
+GET => /dogs/search?color=brown 강아지중 갈색강아지를 불러온다
+
+
+GET /owners/nicolas/dogs -> List of all the dogs that Nicolas has.
+POST /onwers/nicolas/dogs -> Create a dogs for Nicolas
+PUT /onwers/nicolas/dogs -> Update all of Nicolas' dogs
+DELETE /onwers/nicolas/dogs -> Bye bye
+
+GET /owners/nicolas/dogs/search?color=brown
+
+다른 디바이스에 연결하고 싶을때
+아래와 같이하면 명확하고 좋다 
+/v1/dogs/search?color=brown
+/v2/dogs/search?color=brown
+
+API는 이해하기 쉽고, 보자마자 이해할 수 있어야 된다
 """
