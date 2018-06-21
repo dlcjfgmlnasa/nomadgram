@@ -1,8 +1,9 @@
 from django.db import models
 from nomadgram.users import models as user_models
+from django.utils.encoding import python_2_unicode_compatible
 
 # Create your models here.
-
+@python_2_unicode_compatible
 class TimeStampedModel(models.Model):
     create_at = models.DateTimeField(auto_now_add=True) # 데이터가 처음으로 생성될때 마다 자동으로 날짜 추가
     update_at = models.DateTimeField(auto_now=True) # 모델이 저장될때 마다 자동으로 새로고침을 실시
@@ -15,31 +16,38 @@ class TimeStampedModel(models.Model):
                         # abstract base model 은 데이터베이스를 생성하기 위해 사용되지 않는다 
                         # 대신 다른모델들을 위한 base로 사용됨 -> 필드들이 추가
 
-    
+
+@python_2_unicode_compatible
 class Image(TimeStampedModel):
     file = models.ImageField()
     location = models.CharField(max_length=140)
     caption = models.TextField()
     creator = models.ForeignKey(user_models.User, on_delete=models.PROTECT, null=True) # ForeignKey()
 
+    # 이미지 오브젝트(id:1)를 좋아요한 리스트를 어떻게 알 수 있을까??
+    # => 모든 댓글들을 살펴보고 이미지 ID 1이 있다면 해당 댓글은 이미지 1을 위해서 생성되었다고 할수 있다
+    # => 이것을 비효율적 , 모든 댓글을 다 찾아야되기 때문에
+    # 장고는 이 작업을 수행해 준다 => set!!
+    # image_set = {LOOK IN ALL THE COMMENTS FOR THE ONES THAT HAVE 'IMAGE' = THIS IMAGE ID} 이런 쿼리문을 사용한다고 생각하면 됨
+    # foreignkey를 이용하면 이렇게 숨겨진 필드를 이용할 수 있다
+
     # string representation
     def __str__(self):
         return '{} - {}'.format(self.location, self.caption)
 
 
+@python_2_unicode_compatible
 class Comment(TimeStampedModel):
     message = models.TextField()    # 유저의 경우와 달리, 이전에 생성된 데이터가 없기 때문에 디폴트 값 (null 같은) 지정이 필요없다
     creator = models.ForeignKey(user_models.User, on_delete=models.PROTECT, null=True)
-    image = models.ForeignKey(Image, on_delete=models.PROTECT, null=True)
-
-    def __str__(self):
-        return self.image
+    image = models.ForeignKey(Image, on_delete=models.PROTECT, null=True, related_name='comments') # 추가적으로 이름을 바꾸는 방법
 
 
+@python_2_unicode_compatible
 class Like(TimeStampedModel):
     """ Like model """
     creator = models.ForeignKey(user_models.User, on_delete=models.PROTECT, null=True)
-    image = models.ForeignKey(Image, on_delete=models.PROTECT, null=True)
+    image = models.ForeignKey(Image, on_delete=models.PROTECT, null=True, related_name='likes')
 
 
     def __str__(self):
